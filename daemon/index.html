@@ -208,7 +208,7 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
     <div class="badge">Early Access (First 10 Licences)</div>
     <h4>Autonomous Daemon Core</h4>
     <div class="subtext">Full source package for self-hosters &amp; builders</div>
-    <div class="amount">$0.10 <span>USDC on Base</span></div>
+    <div class="amount">$149 <span>USDC on Base</span></div>
     <hr>
     <ul>
       <li><span class="ck">&#10003;</span> Complete clean source code (Node.js 20+)</li>
@@ -220,14 +220,14 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
       <li><span class="ck">&#10003;</span> Commercial single-operator license</li>
     </ul>
 
-    <button id="pay-btn" class="btn" style="width:100%;justify-content:center;cursor:pointer" onclick="payWithWallet()">Pay $0.10 USDC with Connected Wallet</button>
+    <button id="pay-btn" class="btn" style="width:100%;justify-content:center;cursor:pointer" onclick="payWithWallet()">Pay $149 USDC with Connected Wallet</button>
     <div id="wallet-status" style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center;min-height:18px"></div>
     <div style="text-align:center;margin:12px 0 4px">
       <a href="javascript:void(0)" onclick="openPayment()" style="font-size:12px;color:var(--dim);text-decoration:underline">Or transfer manually / copy address</a>
     </div>
 
     <div id="payment-box" class="payment-modal-box" style="display:none">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 0.10 USDC (Base Network) to:</div>
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 149 USDC (Base Network) to:</div>
       <div class="mono-box">
         <span id="addr">0x4b19ee2a3de2521a3adc901989944c209c0a60ea</span>
         <button class="copy-btn" onclick="copyAddr()">Copy</button>
@@ -293,7 +293,7 @@ const EMBEDDED_ZIP_B64 = "UEsDBAoAAAAAALQKOF0AAAAAAAAAAAAAAABBAAkATWVNaWtrby1tdX
 const OWNER_WALLET = "0x4b19ee2a3de2521a3adc901989944c209c0a60ea".toLowerCase();
 const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913".toLowerCase();
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
-const REQUIRED_UNITS = 100000n; // 0.10 USDC test price (100,000 units with 6 decimals)
+const REQUIRED_UNITS = 149000000n; // 149 USDC (6 decimals) // 0.10 USDC test price (100,000 units with 6 decimals)
 
 const RPCS = [
   "https://mainnet.base.org",
@@ -393,7 +393,7 @@ async function triggerDownload(txHash, statusEl) {
       }
 
       if (!valid) {
-        if (statusEl) statusEl.innerHTML = "<span style=\"color:#f85149\">❌ Receipt found, but does not contain a transfer of at least 0.10 USDC to " + OWNER_WALLET + ".</span>";
+        if (statusEl) statusEl.innerHTML = "<span style=\"color:#f85149\">❌ Receipt found, but does not contain a transfer of at least 149 USDC to " + OWNER_WALLET + ".</span>";
         return;
       }
 
@@ -465,7 +465,7 @@ async function payWithWallet() {
     const balance = BigInt(balHex || "0x0");
     if (balance < REQUIRED_UNITS) {
       const balFormatted = (Number(balance) / 1e6).toFixed(2);
-      alert("Connected wallet (" + userAddr.slice(0,6) + "..." + userAddr.slice(-4) + ") has only " + balFormatted + " USDC on Base. You need at least 0.10 USDC.");
+      alert("Connected wallet (" + userAddr.slice(0,6) + "..." + userAddr.slice(-4) + ") has only " + balFormatted + " USDC on Base. You need at least 149 USDC.");
       statusEl.innerText = "Insufficient USDC balance on Base (" + balFormatted + " USDC).";
       return;
     }
