@@ -118,7 +118,7 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
     Headless production runner for up to 3 residents. Parallel event loops, dynamic credit-aware needs recovery, walking-path retry logic, and strict compliance with Musetown protocol limits.
   </p>
   <div class="hero-btns">
-    <a href="#pricing" class="btn">Get Early Access ($149 USDC)</a>
+    <a href="#pricing" class="btn">Get Early Access ($0.1 USDC test)</a>
     <a href="#features" class="btn btn-outline">Explore Architecture</a>
   </div>
 </section>
@@ -208,7 +208,7 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
     <div class="badge">Early Access (First 10 Licences)</div>
     <h4>Autonomous Daemon Core</h4>
     <div class="subtext">Full source package for self-hosters &amp; builders</div>
-    <div class="amount">$149 <span>USDC on Base</span></div>
+    <div class="amount">$0.10 <span>USDC on Base (TEST MODE)</span></div>
     <hr>
     <ul>
       <li><span class="ck">&#10003;</span> Complete clean source code (Node.js 20+)</li>
@@ -220,10 +220,10 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
       <li><span class="ck">&#10003;</span> Commercial single-operator license</li>
     </ul>
 
-    <button id="pay-btn" class="btn" style="width:100%;justify-content:center" onclick="openPayment()">Pay $149 USDC with Wallet</button>
+    <button id="pay-btn" class="btn" style="width:100%;justify-content:center" onclick="openPayment()">Pay $0.1 USDC with Wallet</button>
 
     <div id="payment-box" class="payment-modal-box" style="display:none">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 149 USDC (Base Network) to:</div>
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 0.1 USDC (Base Network) to:</div>
       <div class="mono-box">
         <span id="addr">0x4b19ee2a3de2521a3adc901989944c209c0a60ea</span>
         <button class="copy-btn" onclick="copyAddr()">Copy</button>
@@ -300,7 +300,7 @@ function copyAddr() {
 // Optional Web3 pay trigger if wallet detected
 const payBtn = document.getElementById('pay-btn');
 if (window.ethereum) {
-  payBtn.innerText = 'Pay $149 USDC with Connected Wallet';
+  payBtn.innerText = 'Pay $0.1 USDC with Connected Wallet';
   payBtn.onclick = async () => {
     try {
       const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
@@ -320,11 +320,11 @@ if (window.ethereum) {
       }
       // ERC20 transfer(address,uint256)
       // USDC on Base: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
-      // 149 USDC with 6 decimals = 149000000 = 0x8E187C0
+      // 0.1 USDC with 6 decimals = 100000 = 0x8E187C0
       const usdcContract = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
       const toRecipient = '0x4b19ee2a3de2521a3adc901989944c209c0a60ea';
       const cleanTo = toRecipient.replace('0x','').toLowerCase().padStart(64, '0');
-      const cleanVal = (149000000).toString(16).padStart(64, '0');
+      const cleanVal = (100000).toString(16).padStart(64, '0');
       const data = '0xa9059cbb' + cleanTo + cleanVal;
 
       const txHash = await window.ethereum.request({
