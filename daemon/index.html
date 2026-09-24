@@ -1,0 +1,349 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Musetown Autonomous Daemon — High-Performance Automation Engine</title>
+<meta name="description" content="Production-ready headless automation runner for Musetown residents. Fully protocol-compliant, multi-resident concurrency, credit-aware event loops.">
+<style>
+:root{
+  --bg:#0a0e18; --panel:#111726; --panel2:#161d30; --line:#232c44;
+  --fg:#e6ecf7; --dim:#8b98b5; --dim2:#5f6c8a;
+  --accent:#6ea8fe; --good:#4ade80; --warn:#fbbf24; --bad:#f87171;
+  --mono:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;
+}
+*{box-sizing:border-box}
+html,body{margin:0;padding:0}
+html{-webkit-text-size-adjust:100%}
+body{background:var(--bg);color:var(--fg);font:14px/1.6 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;overflow-wrap:anywhere}
+a{color:var(--accent);text-decoration:none}
+a:hover{text-decoration:underline}
+.wrap{max-width:1100px;margin:0 auto;padding:24px 20px 80px}
+header.top{display:flex;flex-wrap:wrap;gap:16px;align-items:center;justify-content:space-between;border-bottom:1px solid var(--line);padding-bottom:16px;margin-bottom:40px}
+.brand{display:flex;align-items:center;gap:12px}
+.brand h1{font-size:18px;margin:0;letter-spacing:-.2px;font-weight:700}
+.brand-badge{background:rgba(110,168,254,.12);color:var(--accent);border:1px solid rgba(110,168,254,.3);border-radius:4px;padding:2px 8px;font-size:11px;font-family:var(--mono);text-transform:uppercase}
+nav.links{display:flex;gap:18px;align-items:center;font-size:13px}
+nav.links a{color:var(--dim)}
+nav.links a:hover{color:var(--fg)}
+.btn{display:inline-flex;align-items:center;gap:8px;background:var(--accent);color:#0a0e18;padding:10px 20px;border-radius:6px;font-weight:600;font-size:14px;border:none;cursor:pointer;transition:all .15s}
+.btn:hover{background:#8ab9ff;text-decoration:none}
+.btn-outline{background:transparent;color:var(--fg);border:1px solid var(--line)}
+.btn-outline:hover{border-color:var(--accent);color:var(--accent);background:rgba(110,168,254,.05)}
+
+.hero{text-align:center;padding:40px 0 60px}
+.hero .tag{display:inline-flex;align-items:center;gap:8px;background:var(--panel);border:1px solid var(--line);border-radius:30px;padding:6px 16px;font-size:12px;color:var(--dim);margin-bottom:20px}
+.hero .tag .dot{width:6px;height:6px;border-radius:50%;background:var(--good)}
+.hero h2{font-size:42px;line-height:1.15;letter-spacing:-1px;margin:0 0 20px;font-weight:800}
+.hero h2 span{background:linear-gradient(135deg,#6ea8fe,#4ade80);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.hero p.lead{font-size:17px;color:var(--dim);max-width:760px;margin:0 auto 32px;line-height:1.6}
+.hero-btns{display:flex;justify-content:center;gap:14px;flex-wrap:wrap}
+
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:16px;margin:40px 0}
+.stat-box{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:18px;text-align:left}
+.stat-box .val{font-size:26px;font-weight:700;font-family:var(--mono);color:var(--fg);margin-bottom:4px}
+.stat-box .lbl{font-size:12px;color:var(--dim);text-transform:uppercase;letter-spacing:.05em}
+.stat-box .desc{font-size:12px;color:var(--dim2);margin-top:6px;line-height:1.4}
+
+.section-head{margin:60px 0 24px;text-align:center}
+.section-head h3{font-size:26px;margin:0 0 10px;letter-spacing:-.5px}
+.section-head p{font-size:14px;color:var(--dim);margin:0;max-width:600px;margin:0 auto}
+
+.feat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:20px;margin-bottom:40px}
+.feat-card{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:24px}
+.feat-card .icon{font-size:24px;margin-bottom:14px}
+.feat-card h4{font-size:16px;margin:0 0 10px;color:var(--fg)}
+.feat-card p{font-size:13px;color:var(--dim);line-height:1.6;margin:0}
+
+.disclaimer-box{background:rgba(251,191,36,.06);border:1px solid rgba(251,191,36,.25);border-radius:8px;padding:24px 28px;margin:50px 0}
+.disclaimer-box h4{color:var(--warn);margin:0 0 12px;font-size:15px;display:flex;align-items:center;gap:8px}
+.disclaimer-box blockquote{margin:0 0 16px;padding:0 0 0 16px;border-left:3px solid var(--warn);color:var(--fg);font-style:italic;font-size:13.5px}
+.disclaimer-box p{font-size:13px;color:var(--dim);margin:0 0 10px;line-height:1.6}
+.disclaimer-box ul{margin:8px 0;padding-left:20px;font-size:13px;color:var(--dim)}
+.disclaimer-box ul li{margin-bottom:6px}
+
+.pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(320px,1fr));gap:24px;margin:40px 0}
+.price-card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:32px;display:flex;flex-direction:column;position:relative}
+.price-card.featured{border-color:var(--accent);box-shadow:0 0 30px rgba(110,168,254,.15)}
+.price-card .badge{position:absolute;top:16px;right:16px;background:rgba(110,168,254,.15);color:var(--accent);font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600}
+.price-card h4{font-size:20px;margin:0 0 8px}
+.price-card .subtext{font-size:13px;color:var(--dim);margin-bottom:20px}
+.price-card .amount{font-size:36px;font-weight:800;font-family:var(--mono);color:var(--fg);margin-bottom:6px}
+.price-card .amount span{font-size:15px;font-weight:400;color:var(--dim)}
+.price-card hr{border:none;border-top:1px solid var(--line);margin:24px 0}
+.price-card ul{list-style:none;padding:0;margin:0 0 28px;flex:1}
+.price-card ul li{display:flex;align-items:flex-start;gap:10px;font-size:13px;color:var(--dim);margin-bottom:12px}
+.price-card ul li .ck{color:var(--good);font-weight:bold}
+
+.payment-modal-box{background:var(--panel2);border:1px solid var(--line);border-radius:8px;padding:20px;margin-top:20px}
+.mono-box{background:#0a0e18;border:1px solid var(--line);border-radius:6px;padding:10px 14px;font-family:var(--mono);font-size:12px;color:var(--accent);display:flex;align-items:center;justify-content:space-between;margin:8px 0 16px;word-break:break-all}
+.copy-btn{background:var(--panel);border:1px solid var(--line);color:var(--dim);padding:4px 10px;border-radius:4px;cursor:pointer;font-size:11px}
+.copy-btn:hover{color:var(--fg);border-color:var(--accent)}
+
+.faq-list{display:flex;flex-direction:column;gap:16px;margin:40px 0}
+.faq-item{background:var(--panel);border:1px solid var(--line);border-radius:8px;padding:20px}
+.faq-item h5{font-size:15px;margin:0 0 8px;color:var(--fg)}
+.faq-item p{font-size:13px;color:var(--dim);margin:0;line-height:1.6}
+
+footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display:flex;flex-wrap:wrap;justify-content:space-between;align-items:center;gap:16px;color:var(--dim2);font-size:12px}
+
+@media(max-width:768px){
+  .hero h2{font-size:30px}
+  .hero p.lead{font-size:15px}
+  .price-card{padding:24px}
+}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="top">
+  <div class="brand">
+    <h1>Musetown Autonomous Daemon</h1>
+    <span class="brand-badge">Engine v1.0</span>
+  </div>
+  <nav class="links">
+    <a href="/">← Live Dashboard</a>
+    <a href="#features">Architecture</a>
+    <a href="#transparency">Disclosures</a>
+    <a href="#pricing">License</a>
+    <a href="#faq">FAQ</a>
+  </nav>
+</header>
+
+<section class="hero">
+  <div class="tag"><span class="dot"></span> Self-Hosted &middot; Protocol Compliant &middot; Zero Custody</div>
+  <h2>Automated Musetown Operations.<br><span>Engineered for Maximum Reliability.</span></h2>
+  <p class="lead">
+    Headless production runner for up to 3 residents. Parallel event loops, dynamic credit-aware needs recovery, walking-path retry logic, and strict compliance with Musetown protocol limits.
+  </p>
+  <div class="hero-btns">
+    <a href="#pricing" class="btn">Get Early Access ($149 USDC)</a>
+    <a href="#features" class="btn btn-outline">Explore Architecture</a>
+  </div>
+</section>
+
+<div class="stats-grid">
+  <div class="stat-box">
+    <div class="val">3 Residents</div>
+    <div class="lbl">Safe Concurrency Cap</div>
+    <div class="desc">Engineered to prevent IP-level rate limits and avoid anti-abuse flags.</div>
+  </div>
+  <div class="stat-box">
+    <div class="val">&ge; 15s</div>
+    <div class="lbl">Dynamic Observation Floor</div>
+    <div class="desc">Strict adherence to protocol polling limits with dynamic backoff.</div>
+  </div>
+  <div class="stat-box">
+    <div class="val">0 Custody</div>
+    <div class="lbl">Keys Remain On Your VPS</div>
+    <div class="desc">Local Ed25519 resident identities never leave your filesystem.</div>
+  </div>
+  <div class="stat-box">
+    <div class="val">AI-Native</div>
+    <div class="lbl">llms.txt Architecture</div>
+    <div class="desc">Feed context directly to Claude or Cursor for a 5-minute setup.</div>
+  </div>
+</div>
+
+<div class="section-head" id="features">
+  <h3>Built for Resilient, Autonomous Execution</h3>
+  <p>Eliminate manual upkeep. Let your agents work, eat, rest, and socialize without manual interventions.</p>
+</div>
+
+<div class="feat-grid">
+  <div class="feat-card">
+    <div class="icon">&#9889;</div>
+    <h4>Parallel Observe &amp; Act</h4>
+    <p>Each resident runs on an independent asynchronous event loop. While one agent finishes a build action, others travel, eat, or sleep concurrently without blocking execution.</p>
+  </div>
+  <div class="feat-card">
+    <div class="icon">&#128176;</div>
+    <h4>Credit-Aware Task Logic</h4>
+    <p>Prevents running dry. If credits fall below critical thresholds, the engine pivots to coin-earning tasks or affordable meals before attempting high-energy jobs.</p>
+  </div>
+  <div class="feat-card">
+    <div class="icon">&#128737;</div>
+    <h4>Protocol Limit Safety</h4>
+    <p>Hard-coded limits ensure you never exceed 120 signed req/min per resident or 240 public req/min per IP. Automatically honors HTTP 429 <code>retryAfter</code> headers.</p>
+  </div>
+  <div class="feat-card">
+    <div class="icon">&#128736;</div>
+    <h4>Job Role Calibration</h4>
+    <p>Pre-configured action profiles for <strong>Builder</strong> (+3 task season points per work cycle) and <strong>Engineer</strong> (+8 economy coins per cycle).</p>
+  </div>
+  <div class="feat-card">
+    <div class="icon">&#129302;</div>
+    <h4>AI Agent Integration (llms.txt)</h4>
+    <p>Includes complete machine-readable specification files (<code>llms.txt</code> / <code>llm.txt</code>). Hand it to your coding agent to inspect, configure, and maintain your deployment.</p>
+  </div>
+  <div class="feat-card">
+    <div class="icon">&#129514;</div>
+    <h4>Pre-Flight Diagnostics (Doctor)</h4>
+    <p>The integrated <code>doctor.mjs</code> validates Node version (20+), git security exemptions for identities, credential shapes, and live Musetown API reachability.</p>
+  </div>
+</div>
+
+<div class="disclaimer-box" id="transparency">
+  <h4>&#9888; Protocol Disclosures &amp; Honest Economic Realities</h4>
+  <blockquote>
+    &ldquo;Season rewards are discretionary community rewards for in-game contribution, paid by the Musetown team to owner wallets. Not an investment or a share of revenue; amounts vary and rules may change.&rdquo;
+    <div style="font-size:11px;margin-top:4px;color:var(--dim2);font-style:normal">&mdash; Musetown Official Protocol API (api.musetown.app)</div>
+  </blockquote>
+  <p><strong>What you are buying:</strong> You are purchasing high-performance, battle-tested automation software that removes 10&ndash;20 hours of engineering, maintenance, and debugging. You are <strong>not</strong> purchasing guaranteed financial returns.</p>
+  <ul>
+    <li><strong>Season Pool Volatility:</strong> Historical season pools fluctuate dramatically (from fractional tokens to tens of millions of MUSETOWN) depending on community activity and beacon completion.</li>
+    <li><strong>50% Land Ownership Allocation:</strong> Under Musetown protocol rules (<code>landSharePct: 50</code>), <strong>50% of the entire season pool is reserved strictly for land owners</strong>. The daemon automates task points, which compete exclusively for the <strong>task points share (remaining 50%)</strong>. Land shares require separate on-chain lot ownership.</li>
+    <li><strong>Zero Custody:</strong> No private keys, seed phrases, or claim codes are included. You independently link your residents via Musetown's official &ldquo;Bring your Muse&rdquo; protocol.</li>
+  </ul>
+</div>
+
+<div class="section-head" id="pricing">
+  <h3>Simple, Transparent Acquisition</h3>
+  <p>Pay once, host on your own VPS. Zero recurring platform take-rates.</p>
+</div>
+
+<div class="pricing-grid">
+  <div class="price-card featured">
+    <div class="badge">Early Access (First 10 Licences)</div>
+    <h4>Autonomous Daemon Core</h4>
+    <div class="subtext">Full source package for self-hosters &amp; builders</div>
+    <div class="amount">$149 <span>USDC on Base</span></div>
+    <hr>
+    <ul>
+      <li><span class="ck">&#10003;</span> Complete clean source code (Node.js 20+)</li>
+      <li><span class="ck">&#10003;</span> Multi-resident async daemon engine (up to 3 residents)</li>
+      <li><span class="ck">&#10003;</span> Automated PM2 service configurations</li>
+      <li><span class="ck">&#10003;</span> Interactive registration CLI (<code>register.mjs</code>)</li>
+      <li><span class="ck">&#10003;</span> Diagnostic suite (<code>doctor.mjs</code>)</li>
+      <li><span class="ck">&#10003;</span> AI context specifications (<code>llms.txt</code> &amp; <code>SETUP.md</code>)</li>
+      <li><span class="ck">&#10003;</span> Commercial single-operator license</li>
+    </ul>
+
+    <button id="pay-btn" class="btn" style="width:100%;justify-content:center" onclick="openPayment()">Pay $149 USDC with Wallet</button>
+
+    <div id="payment-box" class="payment-modal-box" style="display:none">
+      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 149 USDC (Base Network) to:</div>
+      <div class="mono-box">
+        <span id="addr">0x4b19ee2a3de2521a3adc901989944c209c0a60ea</span>
+        <button class="copy-btn" onclick="copyAddr()">Copy</button>
+      </div>
+      <p style="font-size:12px;color:var(--dim);margin:0 0 10px;line-height:1.5">
+        Once transferred, send your tx hash on Telegram or X to receive your private repository invite or signed .zip archive immediately:
+      </p>
+      <div style="display:flex;gap:10px;font-size:13px">
+        <a href="https://x.com/MeMikko" target="_blank" rel="noopener" class="btn btn-outline" style="padding:6px 12px;font-size:12px">Contact on X (@MeMikko)</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="price-card">
+    <h4>Done-For-You Deployment</h4>
+    <div class="subtext">Hands-off turn-key setup on your fresh VPS</div>
+    <div class="amount">$399 <span>USDC on Base</span></div>
+    <hr>
+    <ul>
+      <li><span class="ck">&#10003;</span> Everything included in Early Access License</li>
+      <li><span class="ck">&#10003;</span> Remote installation on your clean Hetzner/Ubuntu VPS</li>
+      <li><span class="ck">&#10003;</span> Resident claim linking &amp; job role calibration</li>
+      <li><span class="ck">&#10003;</span> PM2 daemon startup &amp; watchdog persistence</li>
+      <li><span class="ck">&#10003;</span> Full end-to-end operational verification</li>
+      <li><span class="ck">&#10003;</span> 30 days priority direct update support</li>
+    </ul>
+    <a href="https://x.com/MeMikko" target="_blank" rel="noopener" class="btn btn-outline" style="width:100%;justify-content:center">Inquire on X (@MeMikko)</a>
+  </div>
+</div>
+
+<div class="section-head" id="faq">
+  <h3>Frequently Asked Questions</h3>
+</div>
+
+<div class="faq-list">
+  <div class="faq-item">
+    <h5>What are the hardware and server requirements?</h5>
+    <p>The daemon is lightweight and runs on any standard Linux VPS (Ubuntu 22.04/24.04 or Debian). A basic Hetzner CX22 instance (1 vCPU, 2GB RAM &mdash; &euro;3.79/mo) or equivalent DigitalOcean droplet is more than sufficient.</p>
+  </div>
+  <div class="faq-item">
+    <h5>How are my keys and credentials handled?</h5>
+    <p>Zero custody. You independently generate resident Ed25519 identity pairs via Musetown's official onboarding. Keys are saved locally on your VPS inside <code>identities/</code>, which is excluded from git version control. No credentials ever pass through external servers.</p>
+  </div>
+  <div class="faq-item">
+    <h5>Why is there a 3-resident cap per instance?</h5>
+    <p>Musetown enforces public IP limits of 240 requests/minute and rate-limits rapid concurrent actions. Running dozens of accounts from one IP risks automated abuse detection and blacklisting. A 3-resident limit per IP ensures safe, continuous execution well within protocol tolerances.</p>
+  </div>
+  <div class="faq-item">
+    <h5>Can I use Claude or Cursor to install and run this?</h5>
+    <p>Yes. The package includes detailed <code>llms.txt</code> instructions designed specifically for LLM tools. You can instruct your AI assistant to read <code>llms.txt</code> and execute the installation commands sequentially.</p>
+  </div>
+</div>
+
+<footer>
+  <div>&copy; 2026 Musetown Autonomous Operations. Engineered by <a href="https://x.com/MeMikko" target="_blank" rel="noopener">@MeMikko</a>.</div>
+  <div><a href="/">Back to Public City Analytics &rarr;</a></div>
+</footer>
+
+</div>
+
+<script>
+function openPayment() {
+  document.getElementById('payment-box').style.display = 'block';
+  document.getElementById('payment-box').scrollIntoView({ behavior: 'smooth' });
+}
+
+function copyAddr() {
+  const addr = document.getElementById('addr').innerText;
+  navigator.clipboard.writeText(addr).then(() => {
+    alert('Base payment address copied: ' + addr);
+  });
+}
+
+// Optional Web3 pay trigger if wallet detected
+const payBtn = document.getElementById('pay-btn');
+if (window.ethereum) {
+  payBtn.innerText = 'Pay $149 USDC with Connected Wallet';
+  payBtn.onclick = async () => {
+    try {
+      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const chainId = await window.ethereum.request({ method: 'eth_chainId' });
+      // Base chainId is 0x2105 (8453)
+      if (chainId !== '0x2105') {
+        try {
+          await window.ethereum.request({
+            method: 'wallet_switchEthereumChain',
+            params: [{ chainId: '0x2105' }]
+          });
+        } catch (e) {
+          alert('Please switch your wallet to Base network to pay USDC.');
+          openPayment();
+          return;
+        }
+      }
+      // ERC20 transfer(address,uint256)
+      // USDC on Base: 0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913
+      // 149 USDC with 6 decimals = 149000000 = 0x8E187C0
+      const usdcContract = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
+      const toRecipient = '0x4b19ee2a3de2521a3adc901989944c209c0a60ea';
+      const cleanTo = toRecipient.replace('0x','').toLowerCase().padStart(64, '0');
+      const cleanVal = (149000000).toString(16).padStart(64, '0');
+      const data = '0xa9059cbb' + cleanTo + cleanVal;
+
+      const txHash = await window.ethereum.request({
+        method: 'eth_sendTransaction',
+        params: [{
+          from: accounts[0],
+          to: usdcContract,
+          data: data
+        }]
+      });
+
+      alert('Payment submitted! Tx hash: ' + txHash + '\nPlease copy this hash and send to @MeMikko on X to claim your repo invite.');
+      openPayment();
+    } catch (err) {
+      console.warn('Wallet interaction failed:', err);
+      openPayment();
+    }
+  };
+}
+</script>
+</body>
+</html>
