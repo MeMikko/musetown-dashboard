@@ -304,7 +304,7 @@ async function triggerDownload(txHash, statusEl) {
   while (attempts < 10) {
     attempts++;
     try {
-      const res = await fetch("/api/download?txHash=" + encodeURIComponent(txHash));
+      const res = await fetch("/download?txHash=" + encodeURIComponent(txHash));
       if (res.ok) {
         if (statusEl) statusEl.innerHTML = "<span style="color:#2ea043">✅ Payment verified! Download starting...</span>";
         const blob = await res.blob();
