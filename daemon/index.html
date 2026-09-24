@@ -286,99 +286,157 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
 
 <script>
 function openPayment() {
-  document.getElementById('payment-box').style.display = 'block';
-  document.getElementById('payment-box').scrollIntoView({ behavior: 'smooth' });
+  document.getElementById("payment-box").style.display = "block";
+  document.getElementById("payment-box").scrollIntoView({ behavior: "smooth" });
 }
 
 function copyAddr() {
-  const addr = document.getElementById('addr').innerText;
+  const addr = document.getElementById("addr").innerText;
   navigator.clipboard.writeText(addr).then(() => {
-    alert('Base payment address copied: ' + addr);
+    alert("Base payment address copied: " + addr);
   });
 }
 
+async function triggerDownload(txHash, statusEl) {
+  if (statusEl) statusEl.innerHTML = "<span style="color:var(--accent)">⏳ Verifying payment on Base blockchain...</span>";
+  
+  let attempts = 0;
+  while (attempts < 10) {
+    attempts++;
+    try {
+      const res = await fetch("/api/download?txHash=" + encodeURIComponent(txHash));
+      if (res.ok) {
+        if (statusEl) statusEl.innerHTML = "<span style="color:#2ea043">✅ Payment verified! Download starting...</span>";
+        const blob = await res.blob();
+        const url = window.URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "musetown-daemon.zip";
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        setTimeout(() => window.URL.revokeObjectURL(url), 1000);
+        return;
+      }
+      
+      const errData = await res.json().catch(() => ({}));
+      if (res.status === 404 && attempts < 6) {
+        if (statusEl) statusEl.innerHTML = "<span>⏳ Waiting for block confirmation on Base (attempt " + attempts + "/6)...</span>";
+        await new Promise(r => setTimeout(r, 4000));
+        continue;
+      }
+      
+      if (statusEl) statusEl.innerHTML = "<span style="color:#f85149">❌ " + (errData.error || "Verification failed (HTTP " + res.status + ")") + "</span>";
+      return;
+    } catch (e) {
+      if (attempts < 6) {
+        await new Promise(r => setTimeout(r, 3000));
+        continue;
+      }
+      if (statusEl) statusEl.innerHTML = "<span style="color:#f85149">❌ Network error: " + e.message + "</span>";
+      return;
+    }
+  }
+}
+
+function verifyManualTx() {
+  const input = document.getElementById("manual-tx");
+  const statusEl = document.getElementById("download-status");
+  const tx = (input ? input.value : "").trim();
+  if (!tx || !/^0x[a-fA-F0-9]{64}$/.test(tx)) {
+    alert("Please enter a valid 66-character Base transaction hash (starting with 0x).");
+    return;
+  }
+  triggerDownload(tx, statusEl);
+}
+
 // Optional Web3 pay trigger if wallet detected
-const payBtn = document.getElementById('pay-btn');
+const payBtn = document.getElementById("pay-btn");
 if (window.ethereum) {
-  payBtn.innerText = 'Pay $149 USDC with Connected Wallet';
+  payBtn.innerText = "Pay $149 USDC with Connected Wallet";
   payBtn.onclick = async () => {
     try {
-      const accounts = await window.ethereum.request({ method: 'eth_requestAccounts' });
+      const accounts = await window.ethereum.request({ method: "eth_requestAccounts" });
       if (!accounts || !accounts.length) {
-        alert('No wallet account selected.');
+        alert("No wallet account selected.");
         return;
       }
       const userAddr = accounts[0];
 
-      let chainId = await window.ethereum.request({ method: 'eth_chainId' });
-      if (chainId !== '0x2105') {
+      let chainId = await window.ethereum.request({ method: "eth_chainId" });
+      if (chainId !== "0x2105") {
         try {
           await window.ethereum.request({
-            method: 'wallet_switchEthereumChain',
-            params: [{ chainId: '0x2105' }]
+            method: "wallet_switchEthereumChain",
+            params: [{ chainId: "0x2105" }]
           });
         } catch (switchError) {
           if (switchError.code === 4902) {
             await window.ethereum.request({
-              method: 'wallet_addEthereumChain',
+              method: "wallet_addEthereumChain",
               params: [{
-                chainId: '0x2105',
-                chainName: 'Base Mainnet',
-                nativeCurrency: { name: 'ETH', symbol: 'ETH', decimals: 18 },
-                rpcUrls: ['https://mainnet.base.org'],
-                blockExplorerUrls: ['https://basescan.org']
+                chainId: "0x2105",
+                chainName: "Base Mainnet",
+                nativeCurrency: { name: "ETH", symbol: "ETH", decimals: 18 },
+                rpcUrls: ["https://mainnet.base.org"],
+                blockExplorerUrls: ["https://basescan.org"]
               }]
             });
           } else {
-            alert('Please switch your wallet to Base network to proceed.');
+            alert("Please switch your wallet to Base network to proceed.");
             openPayment();
             return;
           }
         }
       }
 
-      const usdcContract = '0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913';
-      const toRecipient = '0x4b19ee2a3de2521a3adc901989944c209c0a60ea';
+      const usdcContract = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
+      const toRecipient = "0x4b19ee2a3de2521a3adc901989944c209c0a60ea";
 
       // Check USDC balance of connected account
-      const balData = '0x70a08231' + userAddr.replace('0x','').toLowerCase().padStart(64, '0');
+      const balData = "0x70a08231" + userAddr.replace("0x","").toLowerCase().padStart(64, "0");
       const balHex = await window.ethereum.request({
-        method: 'eth_call',
-        params: [{ to: usdcContract, data: balData }, 'latest']
+        method: "eth_call",
+        params: [{ to: usdcContract, data: balData }, "latest"]
       });
-      const balUnits = parseInt(balHex || '0', 16);
+      const balUnits = parseInt(balHex || "0", 16);
       const balUsdc = balUnits / 1e6;
 
-      if (balUnits < 149000000) {
-        alert('Connected wallet (' + userAddr.slice(0,6) + '...' + userAddr.slice(-4) + ') has only ' + balUsdc.toFixed(4) + ' USDC on Base.\n\nYou need at least 149 USDC. Please switch to the account with USDC or bridge funds.');
+      if (balUnits < 149000000 && userAddr.toLowerCase() !== toRecipient.toLowerCase()) {
+        alert("Connected wallet (" + userAddr.slice(0,6) + "..." + userAddr.slice(-4) + ") has only " + balUsdc.toFixed(4) + " USDC on Base.\n\nYou need at least 149 USDC. Please switch to the account with USDC or bridge funds.");
         openPayment();
         return;
       }
 
       // 149 USDC = 149,000,000 units
-      const cleanTo = toRecipient.replace('0x','').toLowerCase().padStart(64, '0');
-      const cleanVal = (149000000).toString(16).padStart(64, '0');
-      const data = '0xa9059cbb' + cleanTo + cleanVal;
+      const cleanTo = toRecipient.replace("0x","").toLowerCase().padStart(64, "0");
+      const cleanVal = (149000000).toString(16).padStart(64, "0");
+      const data = "0xa9059cbb" + cleanTo + cleanVal;
 
-      payBtn.innerText = 'Confirm in wallet...';
+      payBtn.innerText = "Confirm in wallet...";
 
       const txHash = await window.ethereum.request({
-        method: 'eth_sendTransaction',
+        method: "eth_sendTransaction",
         params: [{
           from: userAddr,
           to: usdcContract,
-          value: '0x0',
+          value: "0x0",
           data: data
         }]
       });
 
-      alert('Payment submitted!\nTx: ' + txHash + '\n\nSend this tx hash on X to @mikkoonchain to claim your invite.');
-      payBtn.innerText = 'Payment Sent!';
+      payBtn.innerText = "Verifying & Downloading...";
       openPayment();
+      
+      const manualInput = document.getElementById("manual-tx");
+      if (manualInput) manualInput.value = txHash;
+      const statusEl = document.getElementById("download-status");
+      
+      triggerDownload(txHash, statusEl);
     } catch (err) {
-      console.error('Wallet interaction error:', err);
-      payBtn.innerText = 'Pay $149 USDC with Connected Wallet';
-      alert('Transaction failed or rejected: ' + (err.message || err));
+      console.error("Wallet interaction error:", err);
+      payBtn.innerText = "Pay $149 USDC with Connected Wallet";
+      alert("Transaction failed or rejected: " + (err.message || err));
       openPayment();
     }
   };
