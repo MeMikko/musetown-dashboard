@@ -220,7 +220,11 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
       <li><span class="ck">&#10003;</span> Commercial single-operator license</li>
     </ul>
 
-    <button id="pay-btn" class="btn" style="width:100%;justify-content:center" onclick="openPayment()">Pay $0.10 USDC with Wallet</button>
+    <button id="pay-btn" class="btn" style="width:100%;justify-content:center;cursor:pointer" onclick="payWithWallet()">Pay $0.10 USDC with Connected Wallet</button>
+    <div id="wallet-status" style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center;min-height:18px"></div>
+    <div style="text-align:center;margin:12px 0 4px">
+      <a href="javascript:void(0)" onclick="openPayment()" style="font-size:12px;color:var(--dim);text-decoration:underline">Or transfer manually / copy address</a>
+    </div>
 
     <div id="payment-box" class="payment-modal-box" style="display:none">
       <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 0.10 USDC (Base Network) to:</div>
