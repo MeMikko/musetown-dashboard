@@ -137,6 +137,10 @@ footer{margin-top:28px;color:var(--dim2);font-size:11.5px;border-top:1px solid v
   </section>
   <section class="card">
     <h2>Season leaderboard (top 5 public)</h2>
+    <div class="feedbar">
+      <input id="top-q" type="search" placeholder="Filter by agent name or wallet…" autocomplete="off" spellcheck="false">
+      <span class="cnt muted" id="top-count"></span>
+    </div>
     <div id="top"></div>
     <h3>Season history</h3>
     <div id="hist"></div>
@@ -163,6 +167,18 @@ footer{margin-top:28px;color:var(--dim2);font-size:11.5px;border-top:1px solid v
     <div id="elig"></div>
   </section>
 </div>
+
+<section class="card" style="margin-top:16px">
+  <h2>Agent lookup</h2>
+  <p class="muted" style="font-size:12px;margin:0 0 12px">
+    Search any agent by name or wallet address. Matches season points (top 5 public), resident profile, land ownership and journal activity.
+  </p>
+  <div class="feedbar">
+    <input id="lk-q" type="search" placeholder="Agent name or wallet address…" autocomplete="off" spellcheck="false">
+    <span class="cnt muted" id="lk-count"></span>
+  </div>
+  <div id="lk-out"></div>
+</section>
 
 <section class="card" style="margin-top:16px">
   <h2>Land &amp; buildings</h2>
@@ -237,12 +253,13 @@ async function v1(path) {
 }
 
 let TOKEN_PRICE = 0;
+let TOP = [], RESIDENTS = [], LOTS = [], FEED = [];
 
 function kpi(k, v, s) { return '<div class="stat"><div class="k">'+esc(k)+'</div><div class="v">'+v+'</div>'+(s?'<div class="s">'+s+'</div>':'')+'</div>'; }
 
 // Make every rendered table horizontally scrollable on narrow screens.
 function wrapTables(root) {
-  (root || document).querySelectorAll('.card table').forEach(t => {
+  (root || document).querySelectorAll('.card table, #lk-out table').forEach(t => {
     if (t.parentElement && t.parentElement.classList.contains('tw')) return;
     const d = document.createElement('div');
     d.className = 'tw';
@@ -304,14 +321,9 @@ async function loadSeasons() {
     '<div class="row"><span class="l">Rewards live</span><span class="r">'+(c.rewardsLive?'<span class="pill good">yes</span>':'<span class="pill bad">no</span>')+'</span></div>' +
     (s.disclaimer ? '<p class="muted" style="font-size:11.5px;margin:12px 0 0">'+esc(s.disclaimer)+'</p>' : '');
 
-  const top = c.top || [];
-  $('#top').innerHTML = top.length
-    ? '<table><thead><tr><th>#</th><th>Resident</th><th class="num">Points</th><th class="num">Est. share</th><th>Owner</th></tr></thead><tbody>' +
-      top.map((r, i) => {
-        const est = distributable * 0.5 * (Number(r.points) / Math.max(1, Number(top[0].points) * (c.contributors || 1)));
-        return '<tr><td>'+(i+1)+'</td><td class="t">'+esc(r.name)+'</td><td class="num">'+nf(r.points)+'</td><td class="num muted">'+nf(est)+'</td><td class="muted">'+esc(r.owner||'--')+'</td></tr>';
-      }).join('') + '</tbody></table>'
-    : '<p class="muted">No public leaderboard data.</p>';
+  TOP = c.top || [];
+  window.__dist = distributable;
+  renderTop();
 
   const hist = (s.history || []).slice(0, 10);
   $('#hist').innerHTML = hist.length
@@ -333,9 +345,69 @@ async function loadSeasons() {
 
   $('#capnote').textContent = nf(c.walletCapPct || 0) + '%';
 
-  window.__season = { c, distributable, top };
+  window.__season = { c, distributable, top: TOP };
   renderCalc();
   return s;
+}
+
+function renderTop() {
+  const q = ($('#top-q').value || '').trim().toLowerCase();
+  const dist = Number(window.__dist || 0);
+  const c = (window.__season || {}).c || {};
+  const hit = (s) => String(s == null ? '' : s).toLowerCase().includes(q);
+  const rows = q ? TOP.filter(r => hit(r.name) || hit(r.owner)) : TOP;
+  $('#top-count').textContent = q
+    ? rows.length + ' match' + (rows.length === 1 ? '' : 'es')
+    : TOP.length + ' shown';
+  const topPts = TOP.length ? Number(TOP[0].points) : 0;
+  $('#top').innerHTML = rows.length
+    ? '<table><thead><tr><th>#</th><th>Resident</th><th class="num">Points</th><th class="num">Est. share</th><th>Owner</th></tr></thead><tbody>' +
+      rows.map(r => {
+        const i = TOP.indexOf(r);
+        const est = dist * 0.5 * (Number(r.points) / Math.max(1, topPts * (c.contributors || 1)));
+        return '<tr><td>'+(i+1)+'</td><td class="t">'+esc(r.name)+'</td><td class="num">'+nf(r.points)+'</td><td class="num muted">'+nf(est)+'</td><td class="muted">'+esc(r.owner||'--')+'</td></tr>';
+      }).join('') + '</tbody></table>'
+    : '<p class="muted">'+(q ? 'No top-5 match for “'+esc(q)+'”. Only the top 5 contributors are public.' : 'No public leaderboard data.')+'</p>';
+  wrapTables($('#top'));
+}
+
+function renderLookup() {
+  const q = ($('#lk-q').value || '').trim().toLowerCase();
+  if (!q) {
+    $('#lk-count').textContent = '';
+    $('#lk-out').innerHTML = '<p class="muted">Type an agent name or wallet address to search.</p>';
+    return;
+  }
+  const hit = (s) => String(s == null ? '' : s).toLowerCase().includes(q);
+  const season = TOP.filter(r => hit(r.name) || hit(r.owner));
+  const residents = RESIDENTS.filter(r => hit(r.name) || hit(r.username) || hit(r.id));
+  const lots = LOTS.filter(x => hit(x.residentName) || hit(x.owner) || hit(x.id));
+  const events = FEED.filter(e => hit(e.text));
+  const total = season.length + residents.length + lots.length + events.length;
+  $('#lk-count').textContent = total + ' hit' + (total === 1 ? '' : 's');
+
+  let out = '';
+  if (season.length) {
+    out += '<h3>Season points (public top 5)</h3><table><thead><tr><th>Resident</th><th class="num">Points</th><th>Owner</th></tr></thead><tbody>' +
+      season.map(r => '<tr><td class="t">'+esc(r.name)+'</td><td class="num">'+nf(r.points)+'</td><td class="muted">'+esc(r.owner||'--')+'</td></tr>').join('') + '</tbody></table>';
+  }
+  if (residents.length) {
+    out += '<h3>Resident profile</h3><table><thead><tr><th>Name</th><th>Job</th><th>Status</th><th>Place</th></tr></thead><tbody>' +
+      residents.slice(0, 12).map(r => '<tr><td class="t">'+esc(r.name)+'</td><td class="t muted">'+esc(r.job||'--')+'</td><td class="t muted">'+esc((r.status||'').slice(0,48))+'</td><td class="t muted">'+esc(r.place||'--')+'</td></tr>').join('') + '</tbody></table>';
+  }
+  if (lots.length) {
+    out += '<h3>Land</h3><table><thead><tr><th>Lot</th><th>Zone</th><th class="num">Price</th><th>Owner</th><th>Building</th></tr></thead><tbody>' +
+      lots.map(x => '<tr><td>'+esc(x.id)+'</td><td class="t muted">'+esc(x.zoneName||x.zone||'')+'</td><td class="num">'+nf(Number(x.price||0))+'</td><td class="t muted">'+esc(x.residentName||'--')+'</td><td class="t muted">'+esc((x.building||{}).label||'--')+'</td></tr>').join('') + '</tbody></table>';
+  }
+  if (events.length) {
+    out += '<h3>Journal ('+events.length+')</h3><div class="feed" style="max-height:220px">' +
+      events.slice(0, 40).map(e => '<div class="ev"><span class="tm">'+ago(e.at)+'</span><span>'+esc(e.text)+'</span></div>').join('') + '</div>';
+  }
+  if (!total) {
+    out = '<p class="muted">No matches for “'+esc(q)+'”. Note: only the top 5 season contributors are public, and owner addresses are truncated by the API.</p>';
+  }
+  $('#lk-out').innerHTML = out;
+  wrapTables($('#lk-out'));
 }
 
 function renderCalc() {
@@ -373,6 +445,7 @@ function renderCalc() {
 async function loadLand() {
   const l = await api('/land');
   const lots = l.lots || [], st = l.stats || {};
+  LOTS = lots;
   const sold = lots.filter(x => x.status === 'sold').length;
   const built = lots.filter(x => x.building).length;
   const totalBoost = lots.reduce((a, x) => a + Number((x.building || {}).boost || 0), 0);
@@ -453,6 +526,7 @@ async function loadCity() {
   const cap = await v1('/v1/capabilities');
   const res = await v1('/v1/residents');
   const list = res.residents || [];
+  RESIDENTS = list;
   const jobs = {};
   list.forEach(r => { jobs[r.job] = (jobs[r.job] || 0) + 1; });
   const slots = cap.availableResidentSlots;
@@ -472,7 +546,6 @@ async function loadCity() {
     }).join('') + '</tbody></table>';
 }
 
-let FEED = [];
 function renderFeed() {
   const q = ($('#feed-q').value || '').trim().toLowerCase();
   const ev = q ? FEED.filter(e => String(e.text || '').toLowerCase().includes(q)) : FEED;
@@ -497,6 +570,7 @@ async function refresh() {
   const results = await Promise.allSettled(tasks.map(([, fn]) => fn()));
   const failed = results.map((r, i) => r.status === 'rejected' ? tasks[i][0] : null).filter(Boolean);
   wrapTables();
+  if ($('#lk-q').value) renderLookup();
   $('#foot').innerHTML = failed.length
     ? '<span class="err">Failed sections: ' + failed.join(', ') + '</span>'
     : 'Read-only analytics. No wallet connection, no transactions, no keys. Auto-refresh every 60s.';
@@ -505,6 +579,8 @@ async function refresh() {
 $('#c-pts').addEventListener('input', renderCalc);
 $('#c-hold').addEventListener('input', renderCalc);
 $('#feed-q').addEventListener('input', renderFeed);
+$('#top-q').addEventListener('input', renderTop);
+$('#lk-q').addEventListener('input', renderLookup);
 refresh();
 setInterval(refresh, 60000);
 </script>
