@@ -201,7 +201,7 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
 
 <div class="section-head" id="pricing">
   <h3>Simple, Transparent Acquisition</h3>
-  <p>Pay once, host on your own VPS. Zero recurring platform take-rates.</p>
+  <p>Pay once, host on your own laptop or VPS. Zero recurring platform take-rates.</p>
 </div>
 
 <div class="pricing-grid">
@@ -264,6 +264,13 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
 </div>
 
 <div class="faq-list">
+  <div class="faq-item">
+    <div class="q">Can I run the daemon on my personal computer or laptop instead of buying a VPS?</div>
+    <div class="a">
+      Yes, absolutely. You do <strong>not</strong> need to pay for a server. The daemon runs on any personal computer (Mac, Windows, or Linux) with Node.js 20+ installed. You can run it directly in your terminal with <code>node daemon.mjs</code> or in the background with local PM2. It uses only ~40 MB of RAM. If your computer sleeps or loses Wi-Fi, it safely pauses and resumes when you wake it. You can always move the exact same setup to a $3&ndash;$5/mo cloud VPS later if you want 24/7 unattended operation.
+    </div>
+  </div>
+
   <div class="faq-item">
     <h5>What are the hardware and server requirements?</h5>
     <p>The daemon is lightweight and runs on any standard Linux VPS (Ubuntu 22.04/24.04 or Debian). A basic Hetzner CX22 instance (1 vCPU, 2GB RAM &mdash; &euro;3.79/mo) or equivalent DigitalOcean droplet is more than sufficient.</p>
