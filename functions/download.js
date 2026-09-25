@@ -4,7 +4,7 @@
 const OWNER_WALLET = "0x4b19ee2a3de2521a3adc901989944c209c0a60ea".toLowerCase();
 const USDC_BASE = "0x833589fcd6edb6e08f4c7c32d4f71b54bda02913".toLowerCase();
 const TRANSFER_TOPIC = "0xddf252ad1be2c89b69c2b068fc378daa952ba7f163c4a11628f55a4df523b3ef";
-const REQUIRED_UNITS = 149000000n; // 149 USDC (6 decimals)
+const REQUIRED_UNITS = 59000000n; // 59 USDC (6 decimals)
 const OWNER_TEST_UNITS = 100000n;   // 0.1 USDC allowed for owner test wallet
 
 // Embedded fallback zip package
@@ -119,7 +119,7 @@ export async function onRequest(context) {
   if (!validPayment) {
     return json({
       ok: false,
-      error: "Transaction receipt does not contain a valid Transfer of at least 149 USDC to " + OWNER_WALLET + " on Base."
+      error: "Transaction receipt does not contain a valid Transfer of at least 59 USDC to " + OWNER_WALLET + " on Base."
     }, 402);
   }
 
