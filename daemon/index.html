@@ -118,7 +118,7 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
     Headless production runner for up to 3 residents. Parallel event loops, dynamic credit-aware needs recovery, walking-path retry logic, and strict compliance with Musetown protocol limits.
   </p>
   <div class="hero-btns">
-    <a href="#pricing" class="btn">Get Early Access ($59 USDC)</a>
+    <a href="#pricing" class="btn btn-outline" style="opacity:0.85">Temporarily Unavailable</a>
     <a href="#features" class="btn btn-outline">Explore Architecture</a>
   </div>
 </section>
@@ -205,11 +205,11 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
 </div>
 
 <div class="pricing-grid">
-  <div class="price-card featured">
-    <div class="badge">🏆 Daily $META Rewards Live</div>
+  <div class="price-card featured" style="border-color:rgba(248,113,113,0.3)">
+    <div class="badge" style="background:rgba(248,113,113,0.15);color:var(--bad);border-color:rgba(248,113,113,0.3)">🚫 Temporarily Unavailable</div>
     <h4>Autonomous Daemon Core</h4>
-    <div class="subtext">Daily rewards are live — Top 25 earn $META daily (reg. $149)</div>
-    <div class="amount">$59 <span>USDC on Base</span></div>
+    <div class="subtext">Sales and new activations are currently paused</div>
+    <div class="amount" style="color:var(--dim)">Paused <span style="color:var(--bad);font-weight:600">Not Available</span></div>
     <hr>
     <ul>
       <li><span class="ck">&#10003;</span> Complete clean source code (Node.js 20+)</li>
@@ -221,31 +221,17 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
       <li><span class="ck">&#10003;</span> Commercial single-operator license</li>
     </ul>
 
-    <button id="pay-btn" class="btn" style="width:100%;justify-content:center;cursor:pointer" onclick="payWithWallet()">Pay $59 USDC with Connected Wallet</button>
-    <div id="wallet-status" style="font-size:12px;color:var(--dim);margin-top:10px;text-align:center;min-height:18px"></div>
-    <div style="text-align:center;margin:12px 0 4px">
-      <a href="javascript:void(0)" onclick="openPayment()" style="font-size:12px;color:var(--dim);text-decoration:underline">Or transfer manually / copy address</a>
-    </div>
-
-    <div id="payment-box" class="payment-modal-box" style="display:none">
-      <div style="font-size:12px;font-weight:600;margin-bottom:6px">Transfer 59 USDC (Base Network) to:</div>
-      <div class="mono-box">
-        <span id="addr">0x4b19ee2a3de2521a3adc901989944c209c0a60ea</span>
-        <button class="copy-btn" onclick="copyAddr()">Copy</button>
-      </div>
-      <p style="font-size:12px;color:var(--dim);margin:0 0 10px;line-height:1.5">
-        Once transferred, send your tx hash on Telegram or X to receive your private repository invite or signed .zip archive immediately:
-      </p>
-      <div style="display:flex;gap:10px;font-size:13px">
-        <a href="https://x.com/mikkoonchain" target="_blank" rel="noopener" class="btn btn-outline" style="padding:6px 12px;font-size:12px">Contact on X (@mikkoonchain)</a>
-      </div>
+    <button id="pay-btn" class="btn" style="width:100%;justify-content:center;cursor:not-allowed;background:var(--panel2);color:var(--bad);border:1px solid rgba(248,113,113,0.3);font-weight:600" disabled>Not Available</button>
+    <div style="background:rgba(248,113,113,0.08);border:1px solid rgba(248,113,113,0.25);border-radius:8px;padding:12px;margin-top:12px;font-size:12.5px;color:var(--fg);text-align:center;line-height:1.4">
+      <div style="font-weight:600;color:var(--bad);margin-bottom:4px">Sales Temporarily Suspended</div>
+      <div style="color:var(--dim);font-size:12px">New license acquisitions are paused while adjusting to upcoming engine and oracle updates. Existing active instances continue operating normally.</div>
     </div>
   </div>
 
-  <div class="price-card">
+  <div class="price-card" style="opacity:0.75">
     <h4>Done-For-You Deployment</h4>
     <div class="subtext">Hands-off turn-key setup on your fresh VPS</div>
-    <div class="amount">$399 <span>USDC on Base</span></div>
+    <div class="amount" style="color:var(--dim)">Paused <span style="color:var(--bad);font-weight:600">Not Available</span></div>
     <hr>
     <ul>
       <li><span class="ck">&#10003;</span> Everything included in Early Access License</li>
@@ -255,7 +241,7 @@ footer{border-top:1px solid var(--line);padding-top:30px;margin-top:60px;display
       <li><span class="ck">&#10003;</span> Full end-to-end operational verification</li>
       <li><span class="ck">&#10003;</span> 30 days priority direct update support</li>
     </ul>
-    <a href="https://x.com/mikkoonchain" target="_blank" rel="noopener" class="btn btn-outline" style="width:100%;justify-content:center">Inquire on X (@mikkoonchain)</a>
+    <button class="btn btn-outline" style="width:100%;justify-content:center;cursor:not-allowed" disabled>Not Available</button>
   </div>
 </div>
 
@@ -428,6 +414,8 @@ function verifyManualTx() {
 }
 
 async function payWithWallet() {
+  alert("Purchases are currently not available. New activations are paused.");
+  return;
   const statusEl = document.getElementById("wallet-status");
   if (typeof window.ethereum === "undefined") {
     alert("No Web3 wallet found. Please install MetaMask, Rabby, or Coinbase Wallet.");
