@@ -38,6 +38,9 @@ async function callRpc(method, params) {
 export async function onRequest(context) {
   const { request, env } = context;
 
+  // Purchases and new downloads are temporarily paused
+  return json({ ok: false, error: "Musetown Daemon purchases and downloads are temporarily not available." }, 503);
+
   // Handle CORS preflight
   if (request.method === "OPTIONS") {
     return new Response(null, {
